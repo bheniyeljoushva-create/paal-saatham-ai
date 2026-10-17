@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paal Saatham</title>
+<style>
+:root { color-scheme: light dark; --blue:#2563eb; --blue-dark:#1746b0; --pale:#eaf2ff; --ink:light-dark(#17233b,#edf3ff); --muted:light-dark(#68758e,#a8b5cf); --surface:light-dark(#ffffff,#151e30); --surface2:light-dark(#f5f8ff,#1c2940); --border:light-dark(#e0e8f5,#2b3a55); --canvas:light-dark(#eef4ff,#0c1423); }
+* { box-sizing:border-box; }
+body { margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--canvas); color:var(--ink); }
+button,input { font:inherit; }
+button { cursor:pointer; }
+.app { min-height:100vh; background:var(--canvas); }
+.topbar { height:76px; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(16px,4vw,52px); background:var(--surface); border-bottom:1px solid var(--border); }
+.brand { display:flex; align-items:center; gap:12px; }
+.logo { width:44px; height:44px; border-radius:15px; display:grid; place-items:center; background:linear-gradient(145deg,#367cff,#1644b4); color:white; font-size:23px; box-shadow:0 7px 18px #2563eb38; }
+.brand-name { font-size:19px; font-weight:800; letter-spacing:-.5px; }
+.brand-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+.status { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px; background:var(--surface2); border:1px solid var(--border); padding:9px 12px; border-radius:99px; }
+.dot { width:8px; height:8px; border-radius:50%; background:#28b67a; }
+.shell { max-width:1240px; margin:28px auto; padding:0 20px; display:grid; grid-template-columns:260px minmax(0,1fr); gap:20px; min-height:calc(100vh - 132px); }
+.sidebar,.chat { background:var(--surface); border:1px solid var(--border); border-radius:22px; overflow:hidden; box-shadow:0 10px 32px #1c4c9510; }
+.sidebar { padding:18px 12px; }
+.section-label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:1.4px; font-weight:800; padding:8px 12px 12px; }
+.nav { width:100%; display:flex; align-items:center; gap:11px; padding:12px; border:0; background:transparent; color:var(--ink); text-align:left; border-radius:13px; font-weight:700; margin-bottom:5px; }
+.nav.active { background:var(--pale); color:#1746b0; }
+@media (prefers-color-scheme: dark) { .nav.active { background:#203d72; color:#dbeafe; } }
+.nav-icon { font-size:19px; width:24px; text-align:center; }
+.nav small { margin-left:auto; font-size:10px; padding:4px 7px; border-radius:8px; background:light-dark(#dce9ff,#263f6a); color:light-dark(#2456a6,#dbeafe); }
+.side-note { margin:24px 6px 0; padding:14px; border-radius:15px; background:var(--surface2); color:var(--muted); font-size:12px; line-height:1.55; }
+.side-note strong { color:var(--ink); display:block; margin-bottom:5px; }
+.chat { display:flex; flex-direction:column; min-height:650px; }
+.chat-head { display:flex; align-items:center; gap:12px; padding:18px 22px; border-bottom:1px solid var(--border); }
+.avatar { width:42px; height:42px; border-radius:15px; display:grid; place-items:center; flex:none; background:var(--pale); font-size:21px; }
+@media (prefers-color-scheme: dark) { .avatar { background:#203d72; } }
+.chat-title { font-weight:800; }
+.chat-sub { font-size:12px; color:var(--muted); margin-top:4px; }
+.head-actions { margin-left:auto; color:var(--muted); font-size:12px; }
+.messages { flex:1; padding:24px clamp(14px,3vw,30px); overflow:auto; display:flex; flex-direction:column; gap:17px; min-height:360px; max-height:calc(100vh - 330px); }
+.day { align-self:center; font-size:11px; color:var(--muted); background:var(--surface2); padding:6px 11px; border-radius:99px; }
+.message { max-width:min(78%,540px); display:flex; flex-direction:column; gap:6px; }
+.message.me { align-self:flex-end; align-items:flex-end; }
+.message.them { align-self:flex-start; align-items:flex-start; }
+.sender { color:var(--muted); font-size:11px; padding:0 4px; }
+.bubble { padding:12px 15px; border-radius:17px; background:var(--surface2); line-height:1.55; font-size:14px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.me .bubble { background:var(--blue); color:white; border-bottom-right-radius:5px; }
+.them .bubble { border-bottom-left-radius:5px; }
+.time { color:var(--muted); font-size:10px; padding:0 4px; }
+.quick { display:flex; flex-wrap:wrap; gap:8px; padding:0 22px 15px; }
+.chip { border:1px solid var(--border); color:var(--blue); background:var(--surface); padding:8px 12px; border-radius:99px; font-size:12px; }
+.composer { border-top:1px solid var(--border); padding:15px 18px 18px; }
+.composer-row { display:flex; align-items:center; gap:10px; background:var(--surface2); border:1px solid var(--border); padding:7px; border-radius:16px; }
+.composer input { min-width:0; flex:1; border:0; outline:0; color:var(--ink); background:transparent; padding:9px 10px; }
+.send { width:42px; height:42px; border:0; border-radius:13px; background:var(--blue); color:white; font-size:18px; }
+.send:hover { background:var(--blue-dark); }
+.footnote { color:var(--muted); font-size:10px; padding:9px 5px 0; line-height:1.45; }
+.notice { margin:0 22px 14px; padding:11px 13px; border-radius:12px; background:light-dark(#fff6df,#382f1c); color:light-dark(#78561a,#f7d98e); font-size:11px; line-height:1.5; }
+.toolbar { display:flex; gap:7px; align-items:center; margin-left:auto; flex-wrap:wrap; justify-content:flex-end; }
+.tool-btn { border:1px solid var(--border); background:var(--surface2); color:var(--ink); border-radius:10px; padding:8px 10px; font-size:12px; }
+.reaction-row { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+.reaction { border:1px solid var(--border); background:var(--surface); color:var(--ink); border-radius:99px; padding:3px 8px; font-size:12px; }
+.reaction.selected { background:var(--pale); border-color:var(--blue); }
+.voice-btn { border:1px solid var(--border); background:var(--surface); color:var(--blue); border-radius:12px; padding:0 11px; }
+.lock-screen { position:fixed; inset:0; z-index:99; background:var(--canvas); display:grid; place-items:center; padding:20px; }
+.lock-card { width:min(100%,390px); background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:26px; box-shadow:0 20px 60px #12345a22; }
+.lock-card h2 { margin:0 0 8px; }
+.lock-card p { color:var(--muted); font-size:13px; line-height:1.5; }
+.lock-card input { width:100%; padding:12px; border:1px solid var(--border); background:var(--surface2); color:var(--ink); border-radius:12px; margin:8px 0 12px; }
+.lock-card button { width:100%; padding:12px; border:0; border-radius:12px; background:var(--blue); color:white; font-weight:700; }
+.friend-list { display:flex; flex-direction:column; gap:7px; padding:0 8px; }
+.friend { display:flex; align-items:center; gap:10px; width:100%; padding:11px; border:1px solid transparent; border-radius:13px; background:transparent; color:var(--ink); text-align:left; }
+.friend.selected { background:var(--surface2); border-color:var(--border); }
+.friend .avatar { width:36px; height:36px; border-radius:12px; font-size:17px; }
+.friend-info { min-width:0; flex:1; }
+.friend-name { font-size:13px; font-weight:750; }
+.friend-preview { color:var(--muted); font-size:11px; margin-top:3px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.add-friend { margin:12px 8px 0; width:calc(100% - 16px); padding:10px; border:1px dashed var(--border); background:transparent; color:var(--blue); border-radius:12px; font-weight:700; font-size:12px; }
+.hidden { display:none !important; }
+@media (max-width:760px) { .topbar { height:68px; } .status { font-size:0; padding:10px; } .status .dot { width:9px;height:9px; } .shell { display:flex; flex-direction:column; margin:12px auto; padding:0 10px; gap:10px; min-height:calc(100vh - 90px); } .sidebar { padding:9px; border-radius:17px; } .section-label,.side-note,.friend-list,.add-friend { display:none; } .navs { display:grid; grid-template-columns:1fr 1fr; gap:5px; } .nav { justify-content:center; margin:0; padding:11px 8px; font-size:13px; } .nav small { display:none; } .chat { flex:1; min-height:68vh; border-radius:17px; } .chat-head { padding:14px; } .messages { max-height:none; min-height:300px; padding:18px 13px; } .message { max-width:88%; } .quick { padding:0 13px 12px; } .composer { padding:12px; } .head-actions { font-size:10px; } }
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><div class="logo">🥣</div><div><div class="brand-name">Paal Saatham</div><div class="brand-sub">Your little corner to chat 💙</div></div></div>
+  <div class="toolbar"><div class="status"><span class="dot"></span> AI setup needed</div><button class="tool-btn" id="themeBtn" type="button">🌙 Theme</button><button class="tool-btn" id="lockBtn" type="button">🔒 Lock</button></div>
+</header>
+<main class="shell">
+  <aside class="sidebar">
+    <div class="section-label">Your chats</div>
+    <div class="navs">
+      <button class="nav active" id="aiTab"><span class="nav-icon">🤖</span> Paal Saatham <small>AI</small></button>
+      <button class="nav" id="friendsTab"><span class="nav-icon">💬</span> Friends</button>
+    </div>
+    <div id="friendSection" class="hidden">
+      <div class="section-label" style="margin-top:20px">Demo contacts</div>
+      <div class="friend-list" id="friendList"></div>
+      <button class="add-friend" id="addFriend">＋ Add demo friend</button>
+    </div>
+    <div class="side-note"><strong>💙 A small note</strong>This is a front-end prototype. Messages live only in this open page and aren't sent to real people yet.</div>
+  </aside>
+  <section class="chat" aria-label="Chat window">
+    <div class="chat-head"><div class="avatar" id="headAvatar">🥣</div><div><div class="chat-title" id="headTitle">Paal Saatham</div><div class="chat-sub" id="headSub">Friendly AI demo · replies are simulated</div></div><div class="head-actions" id="headAction">● Prototype</div></div>
+    <div class="messages" id="messages" aria-live="polite"><div class="day">TODAY</div><div class="message them"><div class="sender">Paal Saatham</div><div class="bubble">Hey chlm! 💙 Welcome to Paal Saatham. I'm your friendly demo chatbot. Try sending a message or tap a suggestion below!</div><div class="time">Just now</div></div></div>
+    <div class="quick" id="quick"><button class="chip" data-msg="I'm feeling a little low today">I feel low 🫂</button><button class="chip" data-msg="Tell me a fun fact">Fun fact ✨</button><button class="chip" data-msg="Help me plan my day">Plan my day 📋</button></div>
+    <div class="notice" id="notice">Privacy note: this demo has no secure account or private server. Avoid entering passwords, addresses, or other sensitive details.</div>
+    <form class="composer" id="composer"><div class="composer-row"><button class="voice-btn" id="voiceBtn" type="button" aria-label="Speak message" title="Speak a message">🎙️</button><button class="voice-btn" id="readAloudBtn" type="button" aria-label="Read latest reply aloud" title="Read latest reply aloud">🔊</button><input id="messageInput" autocomplete="off" placeholder="Type or speak a message..." aria-label="Type a message" maxlength="1000"><button class="send" type="submit" aria-label="Send message">➤</button></div><div class="footnote" id="footnote">🎙️ Speak · 🔊 Read reply aloud · Demo only</div></form>
+  </section>
+</main>
+<div class="lock-screen" id="lockScreen"><div class="lock-card"><div style="font-size:36px">🥣🔐</div><h2 id="lockTitle">Set your passcode</h2><p id="lockText">Create a passcode to lock this demo on this browser. This is only a prototype lock, not strong security or encryption.</p><input id="pinInput" type="password" inputmode="numeric" maxlength="32" placeholder="Create a passcode" autocomplete="new-password"><button id="unlockBtn" type="button">Set passcode & open</button><p id="pinError" role="status"></p></div></div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let mode = 'ai';
+let selectedFriend = 0;
+let friendCount = 3;
+const friends = [
+ {name:'Kavin',emoji:'🧑🏻',messages:[{from:'them',text:'Hey! How are you da? 😊'}]},
+ {name:'Mithra',emoji:'👩🏻',messages:[{from:'them',text:'Hii! Enna panra? 💙'}]},
+ {name:'Arun',emoji:'🧑🏽',messages:[{from:'them',text:'Machan, weekend plan irukka?'}]}
+];
+function addMsg(from,text,name){
+ const wrap=document.createElement('div'); wrap.className='message '+(from==='me'?'me':'them');
+ if(from!=='me'){const s=document.createElement('div');s.className='sender';s.textContent=name|| (mode==='ai'?'Paal Saatham':friends[selectedFriend].name);wrap.appendChild(s)}
+ const b=document.createElement('div');b.className='bubble';b.textContent=text;wrap.appendChild(b);
+ const rr=document.createElement('div');rr.className='reaction-row';['❤️','😂','🥹','👍','😮'].forEach(emoji=>{const rb=document.createElement('button');rb.type='button';rb.className='reaction';rb.textContent=emoji;rb.title='React '+emoji;rb.addEventListener('click',()=>{rr.querySelectorAll('.reaction').forEach(x=>x.classList.remove('selected'));rb.classList.add('selected');rb.textContent=emoji+' ✓'});rr.appendChild(rb)});wrap.appendChild(rr);
+ const t=document.createElement('div');t.className='time';t.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});wrap.appendChild(t);
+ $('messages').appendChild(wrap);$('messages').scrollTop=$('messages').scrollHeight;
+}
+function aiReply(text){const t=text.toLowerCase().trim(); if(/suicid|self.?harm/.test(t))return 'Chlm 💙 nee romba kashtama feel panra maadhiri irukku. Idha nee thaniya handle panna vendam. Nambikkaiyaana family member, friend, teacher kitta ippo pesu. Immediate danger-na nearby adult or local emergency help-ai contact pannu. Naan un kooda pesuren 🫂'; if(/low|sad|lonely|alone|kashtam|feel|tired|upset|azhug|cry|hurt|miss you|miss panren/.test(t))return ['Aww chlm 🥺💙 enna aachu? Sollu, naan kekkuren.','Cha chlm 🫂 unakku ipdi feel aaguradhu kashtam dhaan. Enna nadandhuchu?','Naan inga chat-la un pecha kekka irukken chlm 💙 Unakku comfortable-na konjam share pannu.'][Math.floor(Math.random()*3)]; if(/fun fact|fact/.test(t))return '✨ Fun fact: Octopus-ku moonu hearts irukkum! Nature semma interesting illa chlm? 😄'; if(/joke|sirikka|funny/.test(t))return '😂 Oru computer yen doctor kitta pochu? Adhukku virus pudichirucham! Innum oru joke venuma chlm?'; if(/game|play|bore|boring/.test(t))return 'Aiyoo bore-ah chlm? 😂 Quick game aadalaama: naan oru number 1–10 think panren… nee guess pannu! 🎮'; if(/plan|day|schedule/.test(t))return 'Seri chlm 📋 inniku first oru mukkiyamaana velai mudichidu, apram small break eduthuko. Unakku enna work irukku? Adha serndhu plan pannalaam 💙'; if(/hello|hi|hey|vanakkam|hii|oi|dei|da /.test(t))return ['Hiiii chlm! 💙 Eppadi irukka? Innaiku enna pannitu irukka? 😊','Adei chlm 😄 vandhutiya! Sollu, enna scene?','Heyyy chlm 🥣💙 tea-aa, coffee-aa, illa paal saatham-aa inniku? 😂'][Math.floor(Math.random()*3)]; if(/how are you|eppadi irukka|epdi iruka/.test(t))return 'Naan super-ah irukken chlm 😄 Nee eppadi irukka? Un day epdi pogudhu?'; if(/what are you doing|enna panra|enna pannura/.test(t))return 'Un kooda chat pannitu irukken chlm 😄 Nee enna panra?'; if(/love|lovely|paal saatham|paal/.test(t))return 'Awww chlm 💙🫂 Paal inga thaan irukken, un kooda friendly-ah pesalaam! Enna solla vandha? 😊'; if(/thank|tq|thanks/.test(t))return 'Awww welcome chlm 💙 Eppo venumnaalum inga vandhu pesalaam 😊'; if(/good night|good morning|good evening|bye/.test(t))return 'Seri chlm 💙 Take care! Nalla rest edu, appuram pesalaam 😊'; if(/help/.test(t))return 'Sure chlm 💙 Enna help venum nu sollu. Step by step paathukkalaam.'; const replies=['Hmm seri chlm 💙 appuram enna aachu?','Ohh apdiya chlm 😊 konjam innum sollu, kekkuren.','Acha chlm 😄 adhu interesting-ah irukku! Appuram?','Seri chlm 💙 nee idha pathi enna ninaikkura?','Haha sari 😂 innaiku vera enna special?','Naan kekkuren chlm 🫂 unakku enna sollanum nu thonudho sollu.','Aww okay chlm 💙 nee continue pannu.'];return replies[Math.floor(Math.random()*replies.length)];}
+function renderFriends(){const list=$('friendList');list.innerHTML='';friends.forEach((f,i)=>{const b=document.createElement('button');b.className='friend'+(i===selectedFriend?' selected':'');b.innerHTML='<div class="avatar">'+f.emoji+'</div><div class="friend-info"><div class="friend-name"></div><div class="friend-preview"></div></div>';b.querySelector('.friend-name').textContent=f.name;b.querySelector('.friend-preview').textContent=f.messages.length?f.messages[f.messages.length-1].text:'No messages yet';b.addEventListener('click',()=>{selectedFriend=i;renderFriends();renderChat()});list.appendChild(b)})}
+function renderChat(){ $('messages').innerHTML='<div class="day">TODAY · DEMO</div>'; if(mode==='ai'){ $('headAvatar').textContent='🥣';$('headTitle').textContent='Paal Saatham';$('headSub').textContent='Friendly AI demo · replies are simulated';$('headAction').textContent='● Prototype';$('quick').classList.remove('hidden');$('notice').classList.remove('hidden');$('notice').textContent='Demo mode: AI answers are sample replies, not a live AI service. Don’t enter private information.'; $('footnote').textContent='Enter to send · Prototype only · No account or backend connected'; const intro=document.createElement('div');intro.className='message them';intro.innerHTML='<div class="sender">Paal Saatham</div><div class="bubble"></div><div class="time">Ready to chat</div>';intro.querySelector('.bubble').textContent='Hey chlm! 💙 Welcome back. This AI chat uses sample responses for now.';$('messages').appendChild(intro); } else { const f=friends[selectedFriend];$('headAvatar').textContent=f.emoji;$('headTitle').textContent=f.name;$('headSub').textContent='Demo friend · messages stay on this page';$('headAction').textContent='● Local demo';$('quick').classList.add('hidden');$('notice').classList.remove('hidden');$('notice').textContent='Friends mode is a simulation. Your messages are not delivered to another device or person.';$('footnote').textContent='Enter to send · Demo messages only · No real friend account connected'; if(!f.messages.length)addMsg('them','This is a demo conversation with '+f.name+'. Send a message to try it out.',f.name); else f.messages.forEach(m=>addMsg(m.from,m.text,f.name)); } }
+function setMode(next){mode=next;$('aiTab').classList.toggle('active',mode==='ai');$('friendsTab').classList.toggle('active',mode==='friends');$('friendSection').classList.toggle('hidden',mode!=='friends');renderFriends();renderChat()}
+$('aiTab').addEventListener('click',()=>setMode('ai'));$('friendsTab').addEventListener('click',()=>setMode('friends'));
+$('addFriend').addEventListener('click',()=>{if(friendCount>=8){alert('Demo limit reached. A real app would let you add contacts after sign-in.');return}friendCount++;friends.push({name:['Nila','Surya','Devi','Ravi','Sam'][friendCount-4]||'Friend '+friendCount,emoji:['🌙','🧑🏽‍🦱','👩🏽','🧑🏻‍💻','🙂'][friendCount-4]||'🙂',messages:[]});selectedFriend=friends.length-1;renderFriends();renderChat()});
+async function send(text){text=text.trim();if(!text)return;addMsg('me',text);$('messageInput').value='';if(mode==='ai'){const pending=document.createElement('div');pending.className='message them';pending.id='paal-thinking';pending.innerHTML='<div class="sender">Paal Saatham</div><div class="bubble">Konjam iru chlm 💙 yosichitu irukken...</div>';$('messages').appendChild(pending);$('messages').scrollTop=$('messages').scrollHeight;try{const response=await fetch('/.netlify/functions/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});const data=await response.json();if(!response.ok)throw new Error(data.error||'AI server not ready');pending.remove();addMsg('them',data.reply||data.output_text||'Chlm, reply varala. Innoru thadava try pannu 💙','Paal Saatham')}catch(error){pending.remove();addMsg('them','Chlm 💙 real AI server innum connect aagala. Secure Netlify backend setup pannina thaan normal, sad, fun ellathukkum real replies varum. API key-ah website code-la poda koodadhu.','Paal Saatham')}}else{friends[selectedFriend].messages.push({from:'me',text});renderFriends();setTimeout(()=>addMsg('them','Message added to this local demo, but '+friends[selectedFriend].name+' cannot see it on another device yet.',friends[selectedFriend].name),250)}}
+$('composer').addEventListener('submit',e=>{e.preventDefault();send($('messageInput').value)});
+$('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send($('messageInput').value)}});
+// Theme choice is local to this browser.
+const savedTheme=localStorage.getItem('paal-theme');if(savedTheme)document.documentElement.style.colorScheme=savedTheme;
+$('themeBtn').addEventListener('click',()=>{const next=document.documentElement.style.colorScheme==='dark'?'light':'dark';document.documentElement.style.colorScheme=next;localStorage.setItem('paal-theme',next);$('themeBtn').textContent=next==='dark'?'☀️ Theme':'🌙 Theme'});
+// Browser speech features are optional and depend on browser permissions/support.
+$('voiceBtn').addEventListener('click',()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Voice input is not supported in this browser. Try a supported browser and allow microphone access.');return}const recognition=new SR();recognition.lang='en-IN';recognition.interimResults=false;recognition.onresult=e=>{$('messageInput').value=e.results[0][0].transcript;$('messageInput').focus()};recognition.onerror=()=>alert('Voice input did not work. Check microphone permission and try again.');recognition.start()});
+function speakLastReply(){if(!('speechSynthesis' in window)){alert('Voice playback is not supported in this browser.');return}const last=[...$('messages').querySelectorAll('.message.them .bubble')].pop();if(!last)return;window.speechSynthesis.cancel();window.speechSynthesis.speak(new SpeechSynthesisUtterance(last.textContent))}
+$('readAloudBtn').addEventListener('click',speakLastReply);
+// Prototype-only passcode gate; this does not encrypt chats or protect against technical bypass.
+const pinKey='paal-demo-pin';let pinHash=localStorage.getItem(pinKey);function hashPin(value){let h=2166136261;for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619)}return String(h>>>0)}
+function showLock(){ $('lockScreen').classList.remove('hidden');$('pinInput').value='';$('pinError').textContent='';$('lockTitle').textContent=pinHash?'Enter your passcode':'Set your passcode';$('lockText').textContent='Prototype lock for this browser only. It does not encrypt messages or provide real account security.';$('unlockBtn').textContent=pinHash?'Unlock Paal Saatham':'Set passcode & open';$('pinInput').placeholder=pinHash?'Enter passcode':'Create a passcode'}
+$('unlockBtn').addEventListener('click',()=>{const value=$('pinInput').value;if(!value){$('pinError').textContent='Enter a passcode first.';return}if(!pinHash){pinHash=hashPin(value);localStorage.setItem(pinKey,pinHash);$('lockScreen').classList.add('hidden')}else if(hashPin(value)===pinHash){$('lockScreen').classList.add('hidden')}else{$('pinError').textContent='That passcode does not match. Try again.'}});
+$('pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('unlockBtn').click()});$('lockBtn').addEventListener('click',showLock);showLock();
+document.querySelectorAll('[data-msg]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.msg)));
+renderFriends();
+</script>
+</body>
+</html>
